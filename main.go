@@ -28,11 +28,15 @@ func main() {
 
 		log.Printf("pushgateway crontab spec: %s", config.PushgatewayCrontab)
 		c.AddFunc(config.PushgatewayCrontab, func() {
-			log.Printf("push to %s", config.PushgatewayUrl)
+			log.Printf("Prepare push to %s", config.PushgatewayUrl)
 
 			resp, err := http.Get(config.MetricsUrl)
 			if err != nil {
 				fmt.Println("Error fetching metrics:", err)
+				return
+			}
+			if resp.StatusCode != http.StatusOK {
+				fmt.Println("Error fetching metrics:", resp.StatusCode)
 				return
 			}
 
