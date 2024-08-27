@@ -24,7 +24,7 @@ class App(DevOpsApp):
             cmd = f'docker build {build_params}'
         self.shell_run(cmd)
 
-    def restart(self, metrics_url, pushgateway_base_url, pushgateway_job, instance_on_metrics=None, pushgateway_crontab='*/15 * * * * *'):
+    def restart(self, metrics_url, pushgateway_base_url, pushgateway_job, pushgateway_username='', pushgateway_password='', instance_on_metrics=None, pushgateway_crontab='*/15 * * * * *'):
         container = self._container(metrics_url=metrics_url, pushgateway_job=pushgateway_job)
         self.stop_container(container, timeout=1)
         self.remove_container(container, force=True)
@@ -40,6 +40,8 @@ class App(DevOpsApp):
         envs = [
             f'METRICS_URL="{metrics_url}"',
             f'PG_URL="{pushgateway_url}"',
+            f'PG_USERNAME="{pushgateway_username}"',
+            f'PG_PASSWORD="{pushgateway_password}"',
             f'PG_CRONTAB="{pushgateway_crontab}"',
         ]
 

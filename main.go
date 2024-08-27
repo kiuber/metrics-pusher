@@ -13,9 +13,11 @@ import (
 )
 
 type Config struct {
-	MetricsUrl         string `validate:"required" arg:"env:METRICS_URL" help:"metrics url" default:""`
-	PushgatewayUrl     string `validate:"required" arg:"env:PG_URL" help:"push gateway url" default:""`
-	PushgatewayCrontab string `arg:"env:PG_CRONTAB" help:"push gateway crontab, default every 15 seconds" default:"*/15 * * * * *"`
+	MetricsUrl          string `validate:"required" arg:"env:METRICS_URL" help:"metrics url" default:""`
+	PushgatewayUrl      string `validate:"required" arg:"env:PG_URL" help:"push gateway url" default:""`
+	PushgatewayUsername string `arg:"env:PG_USERNAME" help:"push gateway username" default:""`
+	PushgatewayPassword string `arg:"env:PG_PASSWORD" help:"push gateway password" default:""`
+	PushgatewayCrontab  string `arg:"env:PG_CRONTAB" help:"push gateway crontab, default every 15 seconds" default:"*/15 * * * * *"`
 }
 
 func main() {
@@ -47,7 +49,7 @@ func main() {
 				return
 			}
 
-			push(config.PushgatewayUrl, body)
+			push(*config, body)
 		})
 		c.Start()
 	}
@@ -55,11 +57,15 @@ func main() {
 	log.Fatal(http.ListenAndServe(":9090", nil))
 }
 
-func push(url string, data []byte) {
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+func push(config Config, data []byte) {
+	req, err := http.NewRequest("POST", config.PushgatewayUrl, bytes.NewBuffer(data))
 	if err != nil {
 		fmt.Printf("Error creating request: %v\n", err)
 		return
+	}
+
+	if (config.PushgatewayUsername != "") && (config.PushgatewayPassword != "") {
+		req.SetBasicAuth(config.PushgatewayUsername, config.PushgatewayPassword)
 	}
 
 	client := &http.Client{}
