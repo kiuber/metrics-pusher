@@ -14,10 +14,10 @@ import (
 
 type Config struct {
 	MetricsUrl          string `validate:"required" arg:"env:METRICS_URL" help:"metrics url" default:""`
-	PushgatewayUrl      string `validate:"required" arg:"env:PG_URL" help:"push gateway url" default:""`
-	PushgatewayUsername string `arg:"env:PG_USERNAME" help:"push gateway username" default:""`
-	PushgatewayPassword string `arg:"env:PG_PASSWORD" help:"push gateway password" default:""`
-	PushgatewayCrontab  string `arg:"env:PG_CRONTAB" help:"push gateway crontab, default every 15 seconds" default:"*/15 * * * * *"`
+	PushgatewayUrl      string `validate:"required" arg:"env:PG_URL" help:"pushgateway url" default:""`
+	PushgatewayUsername string `arg:"env:PG_USERNAME" help:"pushgateway username" default:""`
+	PushgatewayPassword string `arg:"env:PG_PASSWORD" help:"pushgateway password" default:""`
+	PushgatewayCrontab  string `arg:"env:PG_CRONTAB" help:"pushgateway crontab, default every 15 seconds" default:"*/15 * * * * *"`
 }
 
 func main() {
