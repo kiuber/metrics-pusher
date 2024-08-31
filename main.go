@@ -49,7 +49,7 @@ func main() {
 				return
 			}
 
-			push(*config, body)
+			Push(*config, body)
 		})
 		c.Start()
 	}
@@ -57,10 +57,11 @@ func main() {
 	log.Fatal(http.ListenAndServe(":9090", nil))
 }
 
-func push(config Config, data []byte) {
+func Push(config Config, data []byte) {
+	log.Printf("Push to %s, username: %s", config.PushgatewayUrl, config.PushgatewayUsername)
 	req, err := http.NewRequest("POST", config.PushgatewayUrl, bytes.NewBuffer(data))
 	if err != nil {
-		fmt.Printf("Error creating request: %v\n", err)
+		fmt.Printf("Push error creating request: %v\n", err)
 		return
 	}
 
@@ -71,10 +72,10 @@ func push(config Config, data []byte) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("Error sending request: %v\n", err)
+		fmt.Printf("Push error sending request: %v\n", err)
 		return
 	}
 	defer resp.Body.Close()
 
-	fmt.Printf("Response status: %s\n", resp.Status)
+	fmt.Printf("Push response status: %s\n", resp.Status)
 }
