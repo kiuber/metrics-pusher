@@ -54,7 +54,7 @@ class App(DevOpsApp):
 
     def _container(self, metrics_url, pushgateway_job):
         url_com = urlparse(metrics_url)
-        metrics_id = f'{url_com.hostname}_{url_com.port}{url_com.path.replace("/", "_")}__{url_com.query.replace("=", "_")}'
+        metrics_id = f'{url_com.hostname}_{url_com.port}{url_com.path.replace("/", "_")}__{url_com.query.replace("=", "_").replace(":", "_")}'
         container = f'{self.app_name}-{pushgateway_job}-{metrics_id}'
         return container
 
