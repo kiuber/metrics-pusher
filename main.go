@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/alexflint/go-arg"
-	"github.com/kiuber/metrics-pusher/mper"
 	"log"
 	"net/http"
+
+	"github.com/alexflint/go-arg"
+	"github.com/kiuber/metrics-pusher/mper"
 )
 
 func main() {

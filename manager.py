@@ -17,7 +17,7 @@ class App(DevOpsApp):
         build_params = f'-t {image} {self.root_dir}'
         if buildx:
             self.shell_run('docker buildx create --use --name multi-arch-builder', exit_on_error=False)
-            cmd = f'docker buildx build --platform linux/amd64,linux/arm64 {build_params}'
+            cmd = f'docker buildx build --platform linux/amd64 {build_params}'
             if push:
                 cmd += f' --push'
         else:

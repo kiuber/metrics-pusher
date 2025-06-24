@@ -2,14 +2,60 @@ package mper
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/robfig/cron/v3"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
+
+var (
+	logLevel = parseLogLevel(os.Getenv("LOG_LEVEL"))
+)
+
+type LogLevel int
+
+const (
+	DEBUG LogLevel = iota
+	INFO
+	WARN
+	ERROR
+)
+
+func parseLogLevel(level string) LogLevel {
+	switch strings.ToUpper(level) {
+	case "DEBUG":
+		return DEBUG
+	case "INFO":
+		return INFO
+	case "WARN":
+		return WARN
+	case "ERROR":
+		return ERROR
+	default:
+		return INFO
+	}
+}
+
+func logf(level LogLevel, format string, v ...interface{}) {
+	if level < logLevel {
+		return
+	}
+	prefix := ""
+	switch level {
+	case DEBUG:
+		prefix = "[DEBUG] "
+	case INFO:
+		prefix = "[INFO] "
+	case WARN:
+		prefix = "[WARN] "
+	case ERROR:
+		prefix = "[ERROR] "
+	}
+	log.Printf(prefix+format, v...)
+}
 
 type PullPushConfig struct {
 	MetricsUrl          string `validate:"required" arg:"env:METRICS_URL" help:"metrics url" default:""`
@@ -20,11 +66,11 @@ type PullPushConfig struct {
 }
 
 func PullPushCrontab(config PullPushConfig) {
+	log.Printf("[INFO] LOG_LEVEL=%s, METRICS_URL=%s, PG_URL=%s, PG_USERNAME=%s, PG_PASSWORD=%s, PG_CRONTAB=%s", os.Getenv("LOG_LEVEL"), config.MetricsUrl, config.PushgatewayUrl, config.PushgatewayUsername, config.PushgatewayPassword, config.PushgatewayCrontab)
 	if config.PushgatewayUrl != "" && config.MetricsUrl != "" {
-		c := cron.New(cron.WithSeconds(), cron.WithChain(cron.SkipIfStillRunning(cron.DefaultLogger)), cron.WithLogger(
-			cron.VerbosePrintfLogger(log.New(os.Stdout, "crontab: ", log.LstdFlags))), cron.WithLocation(time.UTC))
+		c := cron.New(cron.WithSeconds(), cron.WithChain(cron.SkipIfStillRunning(cron.DefaultLogger)), cron.WithLocation(time.UTC))
 
-		log.Printf("crontab spec: %s", config.PushgatewayCrontab)
+		logf(INFO, "crontab spec: %s", config.PushgatewayCrontab)
 		c.AddFunc(config.PushgatewayCrontab, func() {
 			PullPush(config)
 		})
@@ -33,22 +79,22 @@ func PullPushCrontab(config PullPushConfig) {
 }
 
 func PullPush(config PullPushConfig) {
-	log.Printf("Prepare pull %s push to %s", config.MetricsUrl, config.PushgatewayUrl)
+	logf(INFO, "Prepare pull %s push to %s", config.MetricsUrl, config.PushgatewayUrl)
 
 	resp, err := http.Get(config.MetricsUrl)
 	if err != nil {
-		fmt.Println("Error fetching metrics:", err)
+		logf(ERROR, "Error fetching metrics: %v", err)
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Error fetching metrics:", resp.StatusCode)
+		logf(ERROR, "Error fetching metrics: %d", resp.StatusCode)
 		return
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
+		logf(ERROR, "Error reading response body: %v", err)
 		return
 	}
 
@@ -56,10 +102,10 @@ func PullPush(config PullPushConfig) {
 }
 
 func Push(config PullPushConfig, data []byte) {
-	log.Printf("Push to %s, username: %s", config.PushgatewayUrl, config.PushgatewayUsername)
+	logf(INFO, "Push to %s, username: %s", config.PushgatewayUrl, config.PushgatewayUsername)
 	req, err := http.NewRequest("POST", config.PushgatewayUrl, bytes.NewBuffer(data))
 	if err != nil {
-		fmt.Printf("Push error creating request: %v\n", err)
+		logf(ERROR, "Push error creating request: %v", err)
 		return
 	}
 
@@ -70,10 +116,10 @@ func Push(config PullPushConfig, data []byte) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("Push error sending request: %v\n", err)
+		logf(ERROR, "Push error sending request: %v", err)
 		return
 	}
 	defer resp.Body.Close()
 
-	fmt.Printf("Push response status: %s\n", resp.Status)
+	logf(INFO, "Push response status: %s", resp.Status)
 }
