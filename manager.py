@@ -25,7 +25,7 @@ class App(DevOpsApp):
         self.shell_run(cmd)
 
     # lvps: label value pair str
-    def restart(self, metrics_url, pushgateway_base_url, pushgateway_job, pushgateway_username='', pushgateway_password='', lvps='', pushgateway_crontab='*/15 * * * * *', container=None):
+    def restart(self, metrics_url, pushgateway_base_url, pushgateway_job, log_level='error', pushgateway_username='', pushgateway_password='', lvps='', pushgateway_crontab='*/15 * * * * *', container=None):
         if not container:
             container = self._container(metrics_url=metrics_url, pushgateway_job=pushgateway_job)
         self.stop_container(container, timeout=1)
@@ -40,6 +40,7 @@ class App(DevOpsApp):
         pushgateway_url = '/'.join(pushgateway_url_list)
 
         envs = [
+            f'MP_LOG_LEVEL="{log_level}"',
             f'MP_METRICS_URL="{metrics_url}"',
             f'MP_PG_URL="{pushgateway_url}"',
             f'MP_PG_USERNAME="{pushgateway_username}"',
