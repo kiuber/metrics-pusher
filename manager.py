@@ -39,11 +39,11 @@ class App(DevOpsApp):
         pushgateway_url = '/'.join(pushgateway_url_list)
 
         envs = [
-            f'METRICS_URL="{metrics_url}"',
-            f'PG_URL="{pushgateway_url}"',
-            f'PG_USERNAME="{pushgateway_username}"',
-            f'PG_PASSWORD="{pushgateway_password}"',
-            f'PG_CRONTAB="{pushgateway_crontab}"',
+            f'MP_METRICS_URL="{metrics_url}"',
+            f'MP_PG_URL="{pushgateway_url}"',
+            f'MP_PG_USERNAME="{pushgateway_username}"',
+            f'MP_PG_PASSWORD="{pushgateway_password}"',
+            f'MP_PG_CRONTAB="{pushgateway_crontab}"',
         ]
 
         args = dockerutil.base_docker_args(container_name=container, envs=envs, auto_hostname=False)

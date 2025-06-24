@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	logLevel = parseLogLevel(os.Getenv("LOG_LEVEL"))
+	logLevel = parseLogLevel(os.Getenv("MP_LOG_LEVEL"))
 )
 
 type LogLevel int
@@ -58,15 +58,15 @@ func logf(level LogLevel, format string, v ...interface{}) {
 }
 
 type PullPushConfig struct {
-	MetricsUrl          string `validate:"required" arg:"env:METRICS_URL" help:"metrics url" default:""`
-	PushgatewayUrl      string `validate:"required" arg:"env:PG_URL" help:"pushgateway url" default:""`
-	PushgatewayUsername string `arg:"env:PG_USERNAME" help:"pushgateway username" default:""`
-	PushgatewayPassword string `arg:"env:PG_PASSWORD" help:"pushgateway password" default:""`
-	PushgatewayCrontab  string `arg:"env:PG_CRONTAB" help:"pushgateway crontab, default every 15 seconds" default:"*/15 * * * * *"`
+	MetricsUrl          string `validate:"required" arg:"env:MP_METRICS_URL" help:"metrics url" default:""`
+	PushgatewayUrl      string `validate:"required" arg:"env:MP_PG_URL" help:"pushgateway url" default:""`
+	PushgatewayUsername string `arg:"env:MP_PG_USERNAME" help:"pushgateway username" default:""`
+	PushgatewayPassword string `arg:"env:MP_PG_PASSWORD" help:"pushgateway password" default:""`
+	PushgatewayCrontab  string `arg:"env:MP_PG_CRONTAB" help:"pushgateway crontab, default every 15 seconds" default:"*/15 * * * * *"`
 }
 
 func PullPushCrontab(config PullPushConfig) {
-	log.Printf("[INFO] LOG_LEVEL=%s, METRICS_URL=%s, PG_URL=%s, PG_USERNAME=%s, PG_PASSWORD=%s, PG_CRONTAB=%s", os.Getenv("LOG_LEVEL"), config.MetricsUrl, config.PushgatewayUrl, config.PushgatewayUsername, config.PushgatewayPassword, config.PushgatewayCrontab)
+	log.Printf("[INFO] MP_LOG_LEVEL=%s, MP_METRICS_URL=%s, MP_PG_URL=%s, MP_PG_USERNAME=%s, MP_PG_PASSWORD=%s, MP_PG_CRONTAB=%s", os.Getenv("MP_LOG_LEVEL"), config.MetricsUrl, config.PushgatewayUrl, config.PushgatewayUsername, config.PushgatewayPassword, config.PushgatewayCrontab)
 	if config.PushgatewayUrl != "" && config.MetricsUrl != "" {
 		c := cron.New(cron.WithSeconds(), cron.WithChain(cron.SkipIfStillRunning(cron.DefaultLogger)), cron.WithLocation(time.UTC))
 
