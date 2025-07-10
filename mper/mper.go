@@ -79,7 +79,7 @@ func PullPushCrontab(config PullPushConfig) {
 }
 
 func PullPush(config PullPushConfig) {
-	logf(INFO, "Prepare pull %s push to %s", config.MetricsUrl, config.PushgatewayUrl)
+	logf(DEBUG, "Prepare pull %s push to %s", config.MetricsUrl, config.PushgatewayUrl)
 
 	resp, err := http.Get(config.MetricsUrl)
 	if err != nil {
@@ -102,7 +102,7 @@ func PullPush(config PullPushConfig) {
 }
 
 func Push(config PullPushConfig, data []byte) {
-	logf(INFO, "Push to %s, username: %s", config.PushgatewayUrl, config.PushgatewayUsername)
+	logf(DEBUG, "Push to %s, username: %s", config.PushgatewayUrl, config.PushgatewayUsername)
 	req, err := http.NewRequest("POST", config.PushgatewayUrl, bytes.NewBuffer(data))
 	if err != nil {
 		logf(ERROR, "Push error creating request: %v", err)
@@ -121,5 +121,5 @@ func Push(config PullPushConfig, data []byte) {
 	}
 	defer resp.Body.Close()
 
-	logf(INFO, "Push response status: %s", resp.Status)
+	logf(DEBUG, "Push response status: %s", resp.Status)
 }
