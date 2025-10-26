@@ -25,9 +25,11 @@ class App(DevOpsApp):
         self.shell_run(cmd)
 
     # lvps: label value pair str
-    def restart(self, metrics_url, pushgateway_base_url, pushgateway_job, log_level='error', pushgateway_username='', pushgateway_password='', lvps='', pushgateway_crontab='*/15 * * * * *', container=None):
+    def restart(self, metrics_url, pushgateway_base_url, pushgateway_job, log_level='error', pushgateway_username='', pushgateway_password='', lvps='', pushgateway_crontab='*/15 * * * * *', container=None, container_prefix=None):
         if not container:
             container = self._container(metrics_url=metrics_url, pushgateway_job=pushgateway_job)
+        if container_prefix:
+            container = f'{container_prefix}-{container}'
         self.stop_container(container, timeout=1)
         self.remove_container(container, force=True)
 
